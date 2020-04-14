@@ -11,7 +11,7 @@ public: AntiFarmingPlayerScript() : PlayerScript("AntiFarmingPlayerScript") {}
 
         void OnLogin(Player* player) override {
             if (sConfigMgr->GetBoolDefault("AntiFarming.Enable", true)) {
-                if (sConfigMgr->GetBoolDefault("AntiFarming.LoginMessage", true))
+                if (sConfigMgr->GetBoolDefault("AntiFarming.LoginMessage", false))
                     ChatHandler(player->GetSession()).PSendSysMessage("This server is running the |cff4CFF00Antifarming|r Module.");
             }
         }
