@@ -8,16 +8,20 @@
 
 class AntiFarmingPlayerScript : public PlayerScript
 {
-public: AntiFarmingPlayerScript() : PlayerScript("AntiFarmingPlayerScript") {}
+public:
+    AntiFarmingPlayerScript() : PlayerScript("AntiFarmingPlayerScript", {
+        PLAYERHOOK_ON_LOGIN,
+        PLAYERHOOK_ON_PVP_KILL
+    }) {}
 
-        void OnLogin(Player* player) override
+        void OnPlayerLogin(Player* player) override
         {
             if (sConfigMgr->GetOption<bool>("AntiFarming.Enable", true))
                 if (sConfigMgr->GetOption<bool>("AntiFarming.LoginMessage", true))
                     ChatHandler(player->GetSession()).PSendSysMessage("This server is running the |cff4CFF00Antifarming|r Module.");
         }
 
-        void OnPVPKill(Player* killer, Player* killed) override
+        void OnPlayerPVPKill(Player* killer, Player* killed) override
         {
             if (sConfigMgr->GetOption<bool>("AntiFarming.Enable", true))
             {
