@@ -37,7 +37,7 @@ public:
                     std::string str = "|cFFFFFC00[Anti-Farm System]|cFF00FFFF[|cFF60FF00" + killer->GetName() + "|cFF00FFFF] Possible Farmer!";
                     WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
                     data << str;
-                    sWorld->SendGlobalGMMessage(&data);
+                    sWorldSessionMgr->SendGlobalGMMessage(&data);
 
                     // Kick player
                     if (sConfigMgr->GetOption<bool>("AntiFarming.KickPlayer", true))
