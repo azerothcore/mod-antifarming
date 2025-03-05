@@ -1,5 +1,7 @@
 ﻿#include "AntiFarming.h"
 
+using namespace Acore::ChatCommands;
+
 class antifarming_commandscript : public CommandScript
 {
 public:
