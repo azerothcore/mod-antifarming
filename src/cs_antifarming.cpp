@@ -44,7 +44,6 @@ public:
 
     static bool HandleLogCommand(ChatHandler* handler, std::optional<uint32> RLimit)
     {
-        WorldSession *Session = handler->GetSession();
         uint32 i = 0;
 
         if (!RLimit.has_value() || RLimit == 0 || RLimit > 100)
@@ -52,7 +51,7 @@ public:
 
         if (sAntiFarming->dataMap.empty())
         {
-            Session->SendNotification("There are no records");
+            handler->SendNotification("There are no records");
             return false;
         }
 
@@ -65,7 +64,7 @@ public:
             sCharacterCache->GetCharacterNameByGuid(ObjectGuid(itr->first), charName);
             AccountMgr::GetName(sCharacterCache->GetCharacterAccountIdByGuid(ObjectGuid(itr->first)), accName);
             snprintf(msg, 250, "ID: |cFFFFFFFF%lu|r | Character: |cFFFFFFFF%s|r | Account: |cFFFFFFFF%s|r | Warning Level: |cFFFF0000%u|r\n", (long)itr->first, charName.c_str(), accName.c_str(), itr->second);
-            handler->PSendSysMessage("%s", msg);
+            handler->PSendSysMessage("{}", msg);
             handler->SetSentErrorMessage(true);
         }
         return true;
@@ -77,7 +76,7 @@ public:
 
         if (sAntiFarming->dataMap.empty())
         {
-            Session->SendNotification("There are no records!");
+            handler->SendNotification("There are no records!");
             return false;
         }
         else
@@ -97,7 +96,7 @@ public:
         {
             char msg[250];
             snprintf(msg, 250, "Log with ID \"%u\" doesn't exist!", id);
-            Session->SendNotification("%s", msg);
+            handler->SendNotification("{}", msg);
             return false;
         }
         sAntiFarming->dataMap.erase(it);
