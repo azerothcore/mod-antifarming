@@ -5,47 +5,47 @@ class antifarming_commandscript : public CommandScript
 public:
     antifarming_commandscript() : CommandScript("antifarming_commandscript") {}
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
 
-        static std::vector<ChatCommand> HelpDeleteSubCommandTable = {
-            { "all",		SEC_GAMEMASTER,		false,	&HandleHelpDeleteAllCommand,	"" },
-            { "ID",		    SEC_GAMEMASTER,		false,	&HandleHelpDeleteIDCommand,		"" }
-        };
-
-        static std::vector<ChatCommand> HelpCommandSubTable = {
-            { "log",		SEC_GAMEMASTER,		false,	&HandleHelpLogCommand,		"" },
-            { "delete",		SEC_GAMEMASTER,		false,	NULL,		            	"",	HelpDeleteSubCommandTable }
-        };
-
-        static std::vector<ChatCommand> DeleteCommandSubTable = {
-            { "all",		SEC_GAMEMASTER,		true,	&HandleDeleteAllCommand,	"" },
-            { "ID",		    SEC_GAMEMASTER,		true,	&HandleDeleteIDCommand,		"" }
-        };
-
-        static std::vector<ChatCommand> AFSSubCommandTable = {
-            { "log",		SEC_GAMEMASTER,		true,	&HandleLogCommand,		    "" },
-            { "delete",		SEC_ADMINISTRATOR,	true,	NULL,		            	"", DeleteCommandSubTable },
-            { "help",		SEC_GAMEMASTER,		false,	NULL,		            	"", HelpCommandSubTable }
-        };
-
-
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable HelpDeleteSubCommandTable =
         {
-            { "afs",	    SEC_GAMEMASTER,		true,	NULL,		            	"",	AFSSubCommandTable }
+            { "all", HandleHelpDeleteAllCommand, SEC_GAMEMASTER, Console::No },
+            { "ID",  HandleHelpDeleteIDCommand,  SEC_GAMEMASTER, Console::No }
+        };
+
+        static ChatCommandTable HelpCommandSubTable =
+        {
+            { "log",    HandleHelpLogCommand, SEC_GAMEMASTER, Console::No },
+            { "delete", HelpDeleteSubCommandTable }
+        };
+
+        static ChatCommandTable DeleteCommandSubTable =
+        {
+            { "all", HandleDeleteAllCommand, SEC_ADMINISTRATOR, Console::Yes },
+            { "ID",  HandleDeleteIDCommand,  SEC_ADMINISTRATOR, Console::Yes }
+        };
+
+        static ChatCommandTable AFSSubCommandTable =
+        {
+            { "log",    HandleLogCommand, SEC_GAMEMASTER, Console::Yes },
+            { "delete", DeleteCommandSubTable },
+            { "help",   HelpCommandSubTable }
+        };
+
+        static ChatCommandTable commandTable =
+        {
+            { "afs", AFSSubCommandTable }
         };
         return commandTable;
     }
 
-    static bool HandleLogCommand(ChatHandler* handler, const char* args)
+    static bool HandleLogCommand(ChatHandler* handler, std::optional<uint32> RLimit)
     {
         WorldSession *Session = handler->GetSession();
-        uint32 RLimit = 10;
         uint32 i = 0;
-        if ((char*)args)
-            RLimit = atoi((char*)args);
 
-        if (RLimit == 0 || RLimit > 100)
+        if (!RLimit.has_value() || RLimit == 0 || RLimit > 100)
             RLimit = 10;
 
         if (sAntiFarming->dataMap.empty())
@@ -69,7 +69,7 @@ public:
         return true;
     }
 
-    static bool HandleDeleteAllCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDeleteAllCommand(ChatHandler* handler)
     {
         WorldSession *Session = handler->GetSession();
 
@@ -87,12 +87,9 @@ public:
         return true;
     }
 
-    static bool HandleDeleteIDCommand(ChatHandler* handler, const char* args)
+    static bool HandleDeleteIDCommand(ChatHandler* handler, uint32 id)
     {
-        if (!*args)
-            return false;
         WorldSession *Session = handler->GetSession();
-        uint32 id = atoi((char*)args);
         AntiFarming::antiFarmingData::iterator it = sAntiFarming->dataMap.find(id);
         if (it == sAntiFarming->dataMap.end())
         {
@@ -106,7 +103,7 @@ public:
         return true;
     }
 
-    static bool HandleHelpLogCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleHelpLogCommand(ChatHandler* handler)
     {
         handler->PSendSysMessage("This command allows you to check the Database Log for abusers of the Anti-Farm System \n");
         handler->PSendSysMessage("Entering a number after this command will be used to check the maximum lines shown \n");
@@ -115,7 +112,7 @@ public:
         return true;
     }
 
-    static bool HandleHelpDeleteAllCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleHelpDeleteAllCommand(ChatHandler* handler)
     {
         handler->PSendSysMessage("This command will delete all existing records of abusers \n");
         handler->PSendSysMessage("This command does not have any arguments.");
@@ -123,7 +120,7 @@ public:
         return true;
     }
 
-    static bool HandleHelpDeleteIDCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleHelpDeleteIDCommand(ChatHandler* handler)
     {
         handler->PSendSysMessage("This command will let you delete a specific record from the Database \n");
         handler->PSendSysMessage("Entering a number after this command will act like the ID of the record \n");
